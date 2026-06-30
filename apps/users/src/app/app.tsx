@@ -1,17 +1,27 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { User, ApiResponse } from '@org/models';
 import styles from './app.module.css';
-import { authHeaders, handleUnauthorized } from './api';
+import { authHeaders, clearAuth } from './api';
 
 const API_URL = 'http://localhost:3333/api';
 
 export function App() {
+  const navigate = useNavigate();
+  const navigateRef = useRef(navigate);
+  navigateRef.current = navigate;
+
   const [users, setUsers] = useState<User[]>([]);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleUnauthorized = () => {
+    clearAuth();
+    navigateRef.current('/login');
+  };
 
   const loadUsers = async () => {
     setLoading(true);
@@ -36,7 +46,9 @@ export function App() {
       setUsers(data.data);
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : 'An error occurred while loading users';
+        err instanceof Error
+          ? err.message
+          : 'An error occurred while loading users';
       setError(message);
       setUsers([]);
     } finally {
@@ -44,9 +56,8 @@ export function App() {
     }
   };
 
-  useEffect(() => {
-    loadUsers();
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { loadUsers(); }, []);
 
   const addUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,7 +67,11 @@ export function App() {
       const response = await fetch(`${API_URL}/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeaders() },
-        body: JSON.stringify({ name: name.trim(), email: email.trim(), password: password.trim() }),
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          password: password.trim(),
+        }),
       });
 
       if (response.status === 401) {
@@ -76,7 +91,9 @@ export function App() {
       setPassword('');
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : 'An error occurred while creating the user';
+        err instanceof Error
+          ? err.message
+          : 'An error occurred while creating the user';
       setError(message);
     }
   };
@@ -100,7 +117,9 @@ export function App() {
       setUsers((prev) => prev.filter((user) => user.id !== id));
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : 'An error occurred while deleting the user';
+        err instanceof Error
+          ? err.message
+          : 'An error occurred while deleting the user';
       setError(message);
     }
   };

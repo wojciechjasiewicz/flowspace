@@ -5,7 +5,6 @@ export function authHeaders(): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-export function handleUnauthorized(): void {
+export function clearAuth(): void {
   localStorage.removeItem(TOKEN_KEY);
-  window.location.href = '/login';
 }
