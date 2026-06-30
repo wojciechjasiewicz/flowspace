@@ -17,6 +17,9 @@
     },
     {
       "path": "./apps/users"
+    },
+    {
+      "path": "./packages/api/users"
     }
   ]
 }

@@ -1,10 +1,12 @@
 import express from 'express';
 import { ProductsService } from '@org/api-products';
+import { UsersService } from '@org/api-users';
 import {
   ApiResponse,
   Product,
   ProductFilter,
   PaginatedResponse,
+  User,
 } from '@org/models';
 
 const host = process.env.HOST ?? 'localhost';
@@ -12,6 +14,7 @@ const port = process.env.PORT ? Number(process.env.PORT) : 3333;
 
 const app = express();
 const productsService = new ProductsService();
+const usersService = new UsersService(process.env.USERS_DB_PATH ?? 'apps/api/data/users.db');
 
 // Middleware
 app.use(express.json());
@@ -118,6 +121,76 @@ app.get('/api/products/:id', (req, res) => {
       data: null,
       success: false,
       error: 'An error occurred while fetching the product',
+    };
+    return res.status(500).json(response);
+  }
+});
+
+// Users endpoints
+app.get('/api/users', (req, res) => {
+  try {
+    const response: ApiResponse<User[]> = {
+      data: usersService.getUsers(),
+      success: true,
+    };
+    res.json(response);
+  } catch {
+    const response: ApiResponse<null> = {
+      data: null,
+      success: false,
+      error: 'An error occurred while fetching users',
+    };
+    res.status(500).json(response);
+  }
+});
+
+app.post('/api/users', (req, res) => {
+  try {
+    const { name, email } = req.body ?? {};
+    if (!name || !email) {
+      const response: ApiResponse<null> = {
+        data: null,
+        success: false,
+        error: 'name and email are required',
+      };
+      return res.status(400).json(response);
+    }
+
+    const user = usersService.createUser({ name, email });
+    const response: ApiResponse<User> = {
+      data: user,
+      success: true,
+    };
+    return res.status(201).json(response);
+  } catch {
+    const response: ApiResponse<null> = {
+      data: null,
+      success: false,
+      error: 'An error occurred while creating the user',
+    };
+    return res.status(500).json(response);
+  }
+});
+
+app.delete('/api/users/:id', (req, res) => {
+  try {
+    const deleted = usersService.deleteUser(Number(req.params.id));
+
+    if (!deleted) {
+      const response: ApiResponse<null> = {
+        data: null,
+        success: false,
+        error: 'User not found',
+      };
+      return res.status(404).json(response);
+    }
+
+    return res.status(204).send();
+  } catch {
+    const response: ApiResponse<null> = {
+      data: null,
+      success: false,
+      error: 'An error occurred while deleting the user',
     };
     return res.status(500).json(response);
   }

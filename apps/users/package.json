@@ -94,6 +94,9 @@
       }
     }
   },
+  "dependencies": {
+    "@org/models": "*"
+  },
   "exports": {
     "./Module": {
       "@org/source": "./src/remote-entry.ts",

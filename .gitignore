@@ -5,6 +5,9 @@ dist
 tmp
 out-tsc
 
+# local databases
+apps/api/data
+
 # dependencies
 node_modules
 

@@ -125,6 +125,7 @@
   "dependencies": {
     "express": "^4.21.2",
     "@org/api-products": "*",
+    "@org/api-users": "*",
     "@org/models": "*"
   }
 }
