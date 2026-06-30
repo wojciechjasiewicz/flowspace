@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { User, ApiResponse } from '@org/models';
+import styles from './app.module.css';
+import { authHeaders, handleUnauthorized } from './api';
 
 const API_URL = 'http://localhost:3333/api';
 
@@ -7,6 +9,7 @@ export function App() {
   const [users, setUsers] = useState<User[]>([]);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -15,7 +18,15 @@ export function App() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_URL}/users`);
+      const response = await fetch(`${API_URL}/users`, {
+        headers: authHeaders(),
+      });
+
+      if (response.status === 401) {
+        handleUnauthorized();
+        return;
+      }
+
       const data = (await response.json()) as ApiResponse<User[]>;
 
       if (!data.success) {
@@ -39,14 +50,20 @@ export function App() {
 
   const addUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !email.trim()) return;
+    if (!name.trim() || !email.trim() || !password.trim()) return;
 
     try {
       const response = await fetch(`${API_URL}/users`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), email: email.trim() }),
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), password: password.trim() }),
       });
+
+      if (response.status === 401) {
+        handleUnauthorized();
+        return;
+      }
+
       const data = (await response.json()) as ApiResponse<User>;
 
       if (!data.success) {
@@ -56,6 +73,7 @@ export function App() {
       setUsers((prev) => [...prev, data.data]);
       setName('');
       setEmail('');
+      setPassword('');
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'An error occurred while creating the user';
@@ -67,7 +85,13 @@ export function App() {
     try {
       const response = await fetch(`${API_URL}/users/${id}`, {
         method: 'DELETE',
+        headers: authHeaders(),
       });
+
+      if (response.status === 401) {
+        handleUnauthorized();
+        return;
+      }
 
       if (!response.ok) {
         throw new Error('Failed to delete user');
@@ -82,51 +106,77 @@ export function App() {
   };
 
   return (
-    <div>
-      <h1>User Management</h1>
+    <div className={styles.page}>
+      <header className={styles.header}>
+        <h1 className={styles.title}>User Management</h1>
+      </header>
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <div className={styles.error}>{error}</div>}
 
-      <form onSubmit={addUser}>
-        <input
-          type="text"
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <button type="submit">Add User</button>
-      </form>
+      <section className={styles.card}>
+        <h2 className={styles.cardTitle}>Add User</h2>
+        <form className={styles.form} onSubmit={addUser}>
+          <input
+            className={styles.input}
+            type="text"
+            placeholder="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <input
+            className={styles.input}
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <input
+            className={styles.input}
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button className={styles.button} type="submit">
+            Add User
+          </button>
+        </form>
+      </section>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user.id}>
-                <td>{user.name}</td>
-                <td>{user.email}</td>
-                <td>
-                  <button onClick={() => removeUser(user.id)}>Remove</button>
-                </td>
+      <section className={styles.card}>
+        <h2 className={styles.cardTitle}>Users</h2>
+        {loading ? (
+          <p className={styles.empty}>Loading...</p>
+        ) : users.length === 0 ? (
+          <p className={styles.empty}>No users yet.</p>
+        ) : (
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            </thead>
+            <tbody>
+              {users.map((user) => (
+                <tr key={user.id}>
+                  <td>{user.name}</td>
+                  <td>{user.email}</td>
+                  <td>
+                    <button
+                      className={styles.removeButton}
+                      onClick={() => removeUser(user.id)}
+                    >
+                      Remove
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </section>
     </div>
   );
 }

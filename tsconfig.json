@@ -20,6 +20,9 @@
     },
     {
       "path": "./packages/api/users"
+    },
+    {
+      "path": "./packages/api/auth"
     }
   ]
 }
