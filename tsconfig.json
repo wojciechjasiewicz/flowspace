@@ -1,0 +1,34 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compileOnSave": false,
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/api-users"
+    },
+    {
+      "path": "./packages/api-tasks"
+    },
+    {
+      "path": "./packages/api-chat"
+    },
+    {
+      "path": "./packages/app-store"
+    },
+    {
+      "path": "./packages/task-manager"
+    },
+    {
+      "path": "./packages/communicator"
+    },
+    {
+      "path": "./packages/shared/models"
+    },
+    {
+      "path": "./packages/shared/auth"
+    },
+    {
+      "path": "./packages/shared/nest-utils"
+    }
+  ]
+}

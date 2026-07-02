@@ -1,0 +1,11 @@
+{
+  "name": "communicator",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "tags": [
+      "scope:communicator",
+      "type:app"
+    ]
+  }
+}
