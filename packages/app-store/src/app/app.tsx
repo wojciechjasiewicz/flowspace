@@ -1,5 +1,6 @@
 import { Card, Layout, Typography } from 'antd';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
+import { LoginPage, LogoutButton, RequireAuth } from '@flowspace/auth-ui';
 
 const { Header, Content } = Layout;
 const { Title } = Typography;
@@ -22,16 +23,28 @@ function Home() {
 }
 
 export function App() {
+  const location = useLocation();
+  const isLoginPage = location.pathname === '/login';
+
   return (
     <Layout>
-      <Header>
-        <Title level={3} style={{ color: '#fff', margin: 0, lineHeight: '64px' }}>
+      <Header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Title level={3} style={{ color: '#fff', margin: 0 }}>
           Flowspace App Store
         </Title>
+        {!isLoginPage && <LogoutButton />}
       </Header>
       <Content style={{ padding: 24 }}>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<LoginPage title="App Store" />} />
+          <Route
+            path="/"
+            element={
+              <RequireAuth>
+                <Home />
+              </RequireAuth>
+            }
+          />
         </Routes>
       </Content>
     </Layout>

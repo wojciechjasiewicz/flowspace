@@ -29,6 +29,9 @@
     },
     {
       "path": "./packages/shared/nest-utils"
+    },
+    {
+      "path": "./packages/shared/auth-ui"
     }
   ]
 }

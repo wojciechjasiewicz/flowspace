@@ -7,5 +7,8 @@
       "scope:task-manager",
       "type:app"
     ]
+  },
+  "dependencies": {
+    "@flowspace/auth-ui": "*"
   }
 }
