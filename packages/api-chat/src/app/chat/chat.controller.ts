@@ -18,6 +18,11 @@ export class ChatController {
     return this.chatService.listChannels();
   }
 
+  @Post('channels/dm/:otherUserId')
+  findOrCreateDirectChannel(@Param('otherUserId') otherUserId: string, @Req() request: Request) {
+    return this.chatService.findOrCreateDirectChannel(request.user!.sub, otherUserId);
+  }
+
   @Get('channels/:channelId/messages')
   listMessages(@Param('channelId') channelId: string) {
     return this.chatService.listMessages(channelId);

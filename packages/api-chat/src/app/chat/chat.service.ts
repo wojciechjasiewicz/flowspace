@@ -6,6 +6,8 @@ import { DatabaseService } from '../database.service.js';
 interface ChannelRow {
   id: string;
   name: string;
+  participant_a: string | null;
+  participant_b: string | null;
   created_at: string;
 }
 
@@ -38,6 +40,31 @@ export class ChatService {
   listChannels(): Channel[] {
     const rows = this.database.db.prepare('SELECT * FROM channels ORDER BY created_at').all() as unknown as ChannelRow[];
     return rows.map(toChannel);
+  }
+
+  findOrCreateDirectChannel(userId: string, otherUserId: string): Channel {
+    const [participantA, participantB] = [userId, otherUserId].sort();
+
+    const existing = this.database.db
+      .prepare('SELECT * FROM channels WHERE participant_a = ? AND participant_b = ?')
+      .get(participantA, participantB) as ChannelRow | undefined;
+    if (existing) return toChannel(existing);
+
+    const channel: ChannelRow = {
+      id: randomUUID(),
+      name: `dm:${participantA}:${participantB}`,
+      participant_a: participantA,
+      participant_b: participantB,
+      created_at: new Date().toISOString(),
+    };
+
+    this.database.db
+      .prepare(
+        'INSERT INTO channels (id, name, participant_a, participant_b, created_at) VALUES (?, ?, ?, ?, ?)',
+      )
+      .run(channel.id, channel.name, channel.participant_a, channel.participant_b, channel.created_at);
+
+    return toChannel(channel);
   }
 
   private assertChannelExists(channelId: string): void {

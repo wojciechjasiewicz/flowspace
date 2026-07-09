@@ -16,6 +16,8 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       CREATE TABLE IF NOT EXISTS channels (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL UNIQUE,
+        participant_a TEXT,
+        participant_b TEXT,
         created_at TEXT NOT NULL
       );
       CREATE TABLE IF NOT EXISTS messages (
@@ -26,6 +28,14 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         created_at TEXT NOT NULL
       );
     `);
+
+    const columns = this.db.prepare('PRAGMA table_info(channels)').all() as { name: string }[];
+    if (!columns.some((column) => column.name === 'participant_a')) {
+      this.db.exec('ALTER TABLE channels ADD COLUMN participant_a TEXT');
+    }
+    if (!columns.some((column) => column.name === 'participant_b')) {
+      this.db.exec('ALTER TABLE channels ADD COLUMN participant_b TEXT');
+    }
   }
 
   onModuleInit() {

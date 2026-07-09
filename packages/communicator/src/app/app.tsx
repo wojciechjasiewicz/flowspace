@@ -1,16 +1,13 @@
-import { Button, Empty, Layout, Space, Typography } from 'antd';
+import { Button, Layout, Space, Typography } from 'antd';
 import { HomeOutlined } from '@ant-design/icons';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import { LoginPage, LogoutButton, RequireAuth } from '@flowspace/auth-ui';
+import { ChatPanel } from './chat/chat-panel';
 
 const { Header, Content } = Layout;
 const { Title } = Typography;
 
 const APP_STORE_URL = 'http://localhost:4200';
-
-function Home() {
-  return <Empty description="Channels coming soon" />;
-}
 
 export function App() {
   const location = useLocation();
@@ -38,7 +35,7 @@ export function App() {
             path="/"
             element={
               <RequireAuth>
-                <Home />
+                <ChatPanel />
               </RequireAuth>
             }
           />

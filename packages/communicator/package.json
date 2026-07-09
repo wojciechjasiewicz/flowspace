@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^6.3.2",
-    "@flowspace/auth-ui": "*"
+    "@flowspace/auth-ui": "*",
+    "@flowspace/models": "*"
   }
 }
