@@ -18,10 +18,16 @@ export class DatabaseService implements OnModuleDestroy {
         description TEXT,
         status TEXT NOT NULL,
         assignee_id TEXT,
+        reporter_id TEXT,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       )
     `);
+
+    const columns = this.db.prepare('PRAGMA table_info(tasks)').all() as { name: string }[];
+    if (!columns.some((column) => column.name === 'reporter_id')) {
+      this.db.exec('ALTER TABLE tasks ADD COLUMN reporter_id TEXT');
+    }
   }
 
   onModuleDestroy() {

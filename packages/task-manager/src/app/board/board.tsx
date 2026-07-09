@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { DragEvent } from 'react';
-import { Button, Card, Empty, Form, Input, Modal, Spin, Typography } from 'antd';
-import type { Task, TaskStatus } from '@flowspace/models';
+import { Button, Card, Empty, Form, Input, Modal, Select, Spin, Typography } from 'antd';
+import type { Task, TaskStatus, User } from '@flowspace/models';
 import { createTask, listTasks, updateTask } from './tasks-api';
+import { listUsers } from './users-api';
 import styles from './board.module.css';
 
 const { Text } = Typography;
@@ -15,14 +16,19 @@ const COLUMNS: { status: TaskStatus; title: string }[] = [
 
 export function Board() {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
 
+  const userName = (userId?: string) => users.find((user) => user.id === userId)?.name;
+
   const refresh = useCallback(async () => {
     setLoading(true);
     try {
-      setTasks(await listTasks());
+      const [nextTasks, nextUsers] = await Promise.all([listTasks(), listUsers()]);
+      setTasks(nextTasks);
+      setUsers(nextUsers);
     } finally {
       setLoading(false);
     }
@@ -37,9 +43,18 @@ export function Board() {
     await updateTask(taskId, { status });
   };
 
+  const handleAssigneeChange = async (taskId: string, assigneeId: string) => {
+    setTasks((prev) => prev.map((task) => (task.id === taskId ? { ...task, assigneeId } : task)));
+    await updateTask(taskId, { assigneeId });
+  };
+
   const handleCreate = async () => {
     const values = await form.validateFields();
-    await createTask({ title: values.title, description: values.description || undefined });
+    await createTask({
+      title: values.title,
+      description: values.description || undefined,
+      assigneeId: values.assigneeId || undefined,
+    });
     form.resetFields();
     setIsModalOpen(false);
     refresh();
@@ -84,6 +99,21 @@ export function Board() {
                       <Text type="secondary">{task.description}</Text>
                     </div>
                   )}
+                  <div className={styles.cardMeta}>
+                    <Text type="secondary">Reporter: {userName(task.reporterId) ?? 'Unknown'}</Text>
+                  </div>
+                  <div className={styles.cardMeta}>
+                    <Text type="secondary">Assignee:</Text>
+                    <Select
+                      size="small"
+                      className={styles.assigneeSelect}
+                      placeholder="Unassigned"
+                      value={task.assigneeId}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(assigneeId) => handleAssigneeChange(task.id, assigneeId)}
+                      options={users.map((user) => ({ value: user.id, label: user.name }))}
+                    />
+                  </div>
                 </Card>
               ))}
               {columnTasks.length === 0 && <Empty description={false} image={Empty.PRESENTED_IMAGE_SIMPLE} />}
@@ -98,6 +128,13 @@ export function Board() {
           </Form.Item>
           <Form.Item name="description" label="Description">
             <Input.TextArea rows={3} />
+          </Form.Item>
+          <Form.Item name="assigneeId" label="Assignee">
+            <Select
+              allowClear
+              placeholder="Unassigned"
+              options={users.map((user) => ({ value: user.id, label: user.name }))}
+            />
           </Form.Item>
         </Form>
       </Modal>

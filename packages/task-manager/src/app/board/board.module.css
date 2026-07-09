@@ -28,3 +28,14 @@
   margin-bottom: 8px;
   cursor: grab;
 }
+
+.cardMeta {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.assigneeSelect {
+  min-width: 120px;
+}

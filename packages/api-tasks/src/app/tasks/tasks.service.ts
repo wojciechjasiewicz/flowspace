@@ -9,6 +9,7 @@ interface TaskRow {
   description: string | null;
   status: TaskStatus;
   assignee_id: string | null;
+  reporter_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -20,6 +21,7 @@ function toTask(row: TaskRow): Task {
     description: row.description ?? undefined,
     status: row.status,
     assigneeId: row.assignee_id ?? undefined,
+    reporterId: row.reporter_id ?? undefined,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -40,7 +42,7 @@ export class TasksService {
     return toTask(row);
   }
 
-  create(input: CreateTaskInput): Task {
+  create(input: CreateTaskInput & { reporterId: string }): Task {
     const now = new Date().toISOString();
     const task: TaskRow = {
       id: randomUUID(),
@@ -48,15 +50,25 @@ export class TasksService {
       description: input.description ?? null,
       status: 'todo',
       assignee_id: input.assigneeId ?? null,
+      reporter_id: input.reporterId,
       created_at: now,
       updated_at: now,
     };
 
     this.database.db
       .prepare(
-        'INSERT INTO tasks (id, title, description, status, assignee_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO tasks (id, title, description, status, assignee_id, reporter_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
       )
-      .run(task.id, task.title, task.description, task.status, task.assignee_id, task.created_at, task.updated_at);
+      .run(
+        task.id,
+        task.title,
+        task.description,
+        task.status,
+        task.assignee_id,
+        task.reporter_id,
+        task.created_at,
+        task.updated_at,
+      );
 
     return toTask(task);
   }

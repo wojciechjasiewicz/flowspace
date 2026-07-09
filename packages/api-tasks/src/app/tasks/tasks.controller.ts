@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import type { Request } from 'express';
 import type { z } from 'zod';
 import { AuthGuard } from '@flowspace/auth';
 import { ZodValidationPipe } from '@flowspace/nest-utils';
@@ -24,8 +25,8 @@ export class TasksController {
   }
 
   @Post()
-  create(@Body(new ZodValidationPipe(createTaskSchema)) body: CreateTaskBody) {
-    return this.tasksService.create(body);
+  create(@Body(new ZodValidationPipe(createTaskSchema)) body: CreateTaskBody, @Req() request: Request) {
+    return this.tasksService.create({ ...body, reporterId: request.user!.sub });
   }
 
   @Patch(':id')

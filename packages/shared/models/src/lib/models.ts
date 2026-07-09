@@ -36,6 +36,7 @@ export interface Task {
   title: string;
   description?: string;
   status: TaskStatus;
+  reporterId?: string;
   assigneeId?: string;
   createdAt: string;
   updatedAt: string;
