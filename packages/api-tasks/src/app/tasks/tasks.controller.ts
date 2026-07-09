@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import type { Request } from 'express';
 import type { z } from 'zod';
 import { AuthGuard } from '@flowspace/auth';
@@ -32,5 +32,10 @@ export class TasksController {
   @Patch(':id')
   update(@Param('id') id: string, @Body(new ZodValidationPipe(updateTaskSchema)) body: UpdateTaskBody) {
     return this.tasksService.update(id, body);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.tasksService.remove(id);
   }
 }

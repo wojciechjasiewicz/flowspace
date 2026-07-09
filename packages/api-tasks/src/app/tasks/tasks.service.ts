@@ -92,4 +92,9 @@ export class TasksService {
 
     return updated;
   }
+
+  remove(id: string): void {
+    this.findById(id);
+    this.database.db.prepare('DELETE FROM tasks WHERE id = ?').run(id);
+  }
 }
