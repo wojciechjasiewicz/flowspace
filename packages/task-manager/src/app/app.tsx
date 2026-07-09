@@ -1,13 +1,10 @@
-import { Empty, Layout, Typography } from 'antd';
+import { Layout, Typography } from 'antd';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import { LoginPage, LogoutButton, RequireAuth } from '@flowspace/auth-ui';
+import { Board } from './board/board';
 
 const { Header, Content } = Layout;
 const { Title } = Typography;
-
-function Home() {
-  return <Empty description="Board coming soon" />;
-}
 
 export function App() {
   const location = useLocation();
@@ -28,7 +25,7 @@ export function App() {
             path="/"
             element={
               <RequireAuth>
-                <Home />
+                <Board />
               </RequireAuth>
             }
           />

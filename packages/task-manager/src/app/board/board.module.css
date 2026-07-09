@@ -1,0 +1,30 @@
+.toolbar {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.board {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.column {
+  flex: 1;
+  min-width: 240px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 12px;
+  min-height: 400px;
+}
+
+.columnTitle {
+  display: block;
+  margin-bottom: 12px;
+}
+
+.card {
+  margin-bottom: 8px;
+  cursor: grab;
+}
