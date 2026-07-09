@@ -1,6 +1,8 @@
 import { Card, Layout, Typography } from 'antd';
-import { Route, Routes, useLocation } from 'react-router-dom';
-import { LoginPage, LogoutButton, RequireAuth } from '@flowspace/auth-ui';
+import { Link, Route, Routes, useLocation } from 'react-router-dom';
+import { LoginPage, LogoutButton, RequireAuth, useAuth } from '@flowspace/auth-ui';
+import { isAdmin } from '@flowspace/models';
+import { UsersPage } from './users/users-page';
 
 const { Header, Content } = Layout;
 const { Title } = Typography;
@@ -11,6 +13,8 @@ const apps = [
 ];
 
 function Home() {
+  const { user } = useAuth();
+
   return (
     <div style={{ display: 'flex', gap: 16 }}>
       {apps.map((app) => (
@@ -18,6 +22,11 @@ function Home() {
           <a href={app.url}>Open {app.name}</a>
         </Card>
       ))}
+      {user && isAdmin(user) && (
+        <Card title="User Management" style={{ width: 240 }}>
+          <Link to="/users">Add and view users</Link>
+        </Card>
+      )}
     </div>
   );
 }
@@ -42,6 +51,14 @@ export function App() {
             element={
               <RequireAuth>
                 <Home />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <RequireAuth>
+                <UsersPage />
               </RequireAuth>
             }
           />
